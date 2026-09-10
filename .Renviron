@@ -1,0 +1,11 @@
+# Use the project-local library and cache paths without renv's optional sandbox.
+# This setting applies to this project and does not change global R settings.
+RENV_CONFIG_SANDBOX_ENABLED=FALSE
+RENV_CONFIG_AUTO_SNAPSHOT=FALSE
+RENV_PATHS_CACHE=renv/cache
+RENV_PATHS_SOURCE=renv/sources
+RENV_PATHS_BINARY=renv/binaries
+RENV_PATHS_CELLAR=renv/cellar
+R_PKG_CACHE_DIR=renv/pak-cache
+PKG_PACKAGE_CACHE_DIR=renv/pak-cache
+PKG_CACHE_DIR=renv/pak-downloads
