@@ -1,0 +1,38 @@
+# Local development and editor files.
+/plan/
+/.vscode/
+/.idea/
+
+# Keep only the renv activation and configuration files.
+/renv/*
+!/renv/.gitignore
+!/renv/activate.R
+!/renv/settings.json
+
+# Keep only the bundled reference inputs.
+/input/*
+!/input/README.md
+!/input/sequences.fasta
+!/input/peptides.csv
+!/input/fusion_junctions.csv
+
+# Generated runs and interrupted output writes.
+/results/
+.fusionpep-*/
+.fusion-report-*
+
+# R session state.
+.Rhistory
+.RData
+.RDataTmp
+.Ruserdata
+.Rproj.user/
+
+# Local credentials, editor backups, and operating-system metadata.
+.env
+.env.*
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
