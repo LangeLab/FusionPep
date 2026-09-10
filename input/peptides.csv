@@ -1,0 +1,8 @@
+peptide,evidence_role,reference
+ITQGKAIETQSSSSEEIV,published_fusion_region_peptide,Blood fusion-region peptide; separator omitted
+LSSCITQGKAIE,published_fusion_region_peptide,"Fusion Peptides from Oncogenic Chimeric Proteins (2013)"
+ITQGK,parent_control,UniProt PML P29590-derived sequence
+TQSSSSEEIV,parent_control,UniProt RARA P10276-derived sequence
+LSSCITQGKDAAVSKK,parent_control,UniProt PML P29590-derived sequence
+GTYFEGLLEGPALARAEGVSTPLAGRGLAERASQQS,parent_only_control,UniProt PML P29590 C-terminal fusion-absent tail
+MASNSSSCPTPGGGHLNGYPVPPYAFFFPPMLGGLSPPGALTTLQHQLPVSGYSTPSP,parent_only_control,UniProt RARA P10276 N-terminal fusion-absent tail
