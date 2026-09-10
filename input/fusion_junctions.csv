@@ -1,0 +1,2 @@
+fusion_id,junction_id,upstream_parent,downstream_parent,fusion_left_position,fusion_right_position,upstream_parent_position,downstream_parent_position,inserted_sequence,min_flank_aa,source,notes
+Fusion,PML_RARA_bcr3,ParentA,ParentB,394,396,394,61,A,3,AAA60126.1,"PML residue 394 is followed by one breakpoint-derived alanine and RARA residue 61"
