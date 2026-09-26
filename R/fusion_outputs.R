@@ -84,9 +84,29 @@ write_csv_output <- function(data, path) {
   )
 }
 
+# PDF figures use grDevices::cairo_pdf. Without a loadable Cairo library (on
+# macOS, CRAN's R loads it from XQuartz) the device only warns and writes
+# nothing, so probe it once with a small file instead of failing mid-export.
+pdf_device_available <- function(device = grDevices::cairo_pdf) {
+  path <- tempfile(fileext = ".pdf")
+  on.exit(unlink(path), add = TRUE)
+  before <- grDevices::dev.list()
+  suppressWarnings(try(device(path), silent = TRUE))
+  for (opened in setdiff(grDevices::dev.list(), before)) {
+    grDevices::dev.off(opened)
+  }
+  file.exists(path)
+}
+
 write_fusion_outputs <- function(result, output_dir) {
   if (!inherits(result, "fusion_peptide_mapping_result")) {
     stopf("write_fusion_outputs expects a fusion_peptide_mapping_result.")
+  }
+  if (!pdf_device_available()) {
+    stopf(paste(
+      "PDF figure export needs R's Cairo graphics, which this R installation cannot load.",
+      "On macOS, install XQuartz (https://www.xquartz.org) and restart R."
+    ))
   }
   output_dir <- normalize_output_directory(output_dir)
 

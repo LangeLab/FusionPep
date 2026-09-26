@@ -54,7 +54,7 @@ An unassessed or excluded row also differs from a valid peptide with no match. I
 
 ## PDF export or report links fail
 
-Check `capabilities("cairo")` in R. The current PDF writer uses Cairo and requires it to be available.
+The PDF figures use Cairo graphics. Before writing any output, FusionPep checks that a Cairo PDF can be written and otherwise stops with "PDF figure export needs R's Cairo graphics". On macOS, CRAN's R loads Cairo from [XQuartz](https://www.xquartz.org): install it and restart R. `capabilities("cairo")` can report `TRUE` even when the library fails to load.
 
 The report embeds PNG figures, while PDF and table links point to other files in the output directory. Share the entire directory with its `figures/` subdirectory to retain those links.
 

@@ -686,6 +686,14 @@ testthat::test_that("saved outputs record input file names, not directories", {
   )
 })
 
+testthat::test_that("PDF export is probed before any output is written", {
+  testthat::expect_true(pdf_device_available())
+  # A device that cannot load Cairo warns and writes no file.
+  testthat::expect_false(pdf_device_available(function(path) warning("failed to load cairo DLL")))
+  testthat::expect_false(pdf_device_available(function(path) stop("no Cairo")))
+  testthat::expect_null(grDevices::dev.list())
+})
+
 testthat::test_that("outputs cannot overwrite input files", {
   input_dir <- tempfile("fusion-input-")
   dir.create(input_dir)
