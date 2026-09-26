@@ -1,0 +1,35 @@
+Package: fusionpep
+Type: Project
+Title: FusionPep: Peptide Mapping and Junction Review
+Version: 0.1.0
+Authors@R: c(
+    person(given = "Enes K.", family = "Ergin", role = "aut"),
+    person(given = "Agustina", family = "Conrrero", role = "aut"),
+    person("Lange Lab", role = c("aut", "cre"))
+    )
+Description: Maps peptide sequences supplied directly or from peptide-spectrum
+    match (PSM) exports to a proposed fusion protein and its two selected
+    parent proteins. It reports mapped occurrences, parent sharing, residue
+    coverage, and pairwise fusion-to-parent alignments. When junction
+    coordinates are supplied, it checks whether an occurrence crosses a
+    junction and meets the required minimum flank length on both sides. Runs
+    write CSV tables, an RDS file containing the analysis result, figures, and
+    an HTML report. FusionPep does not search spectra, validate PSMs, establish
+    peptide detection, or prove biological fusion expression.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.6.0)
+Imports:
+    Biostrings,
+    IRanges,
+    pwalign,
+    ggplot2,
+    htmltools,
+    base64enc
+Suggests:
+    BiocManager,
+    BiocVersion,
+    pak,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
