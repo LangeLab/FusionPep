@@ -179,7 +179,7 @@ testthat::test_that("alignment parameters require finite non-negative values", {
 testthat::test_that("junction annotations require both-sided flanks", {
   junction_file <- tempfile(fileext = ".csv")
   writeLines(c(
-    "fusion_id,junction_id,upstream_parent,downstream_parent,fusion_left_position,fusion_right_position,upstream_parent_position,downstream_parent_position,min_flank_aa,source,notes",
+    "fusion_id,junction_id,upstream_parent,downstream_parent,fusion_left_position,fusion_right_position,upstream_parent_position,downstream_parent_position,min_flank_aa,source,notes", # nolint: line_length_linter.
     "Fusion,j1,ParentA,ParentB,4,5,4,2,2,test,synthetic"
   ), junction_file)
   sequence_text <- c(
@@ -381,7 +381,7 @@ testthat::test_that("junction metadata cannot identify a parent as the fusion", 
 testthat::test_that("junction text values keep literal NA and leading zeros", {
   junction_file <- tempfile(fileext = ".csv")
   writeLines(c(
-    "fusion_id,junction_id,upstream_parent,downstream_parent,fusion_left_position,fusion_right_position,upstream_parent_position,downstream_parent_position,inserted_sequence,min_flank_aa",
+    "fusion_id,junction_id,upstream_parent,downstream_parent,fusion_left_position,fusion_right_position,upstream_parent_position,downstream_parent_position,inserted_sequence,min_flank_aa", # nolint: line_length_linter.
     "Fusion,NA,ParentA,ParentB,3,6,NA,NA,NA,2",
     "Fusion,01,ParentA,ParentB,2,3,,,,1"
   ), junction_file)

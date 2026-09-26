@@ -311,6 +311,7 @@ embedded_image <- function(path, alt_text, caption = alt_text, pdf_path = NULL) 
 
 # Describe the saved data files using counts from the same result as the report.
 output_manifest_html <- function(result, artifact_paths) {
+  # nolint start: line_length_linter. One readable sentence per output file.
   descriptions <- c(
     input_peptides = "Original peptide rows, including all supplied evidence-role and other metadata columns.",
     normalized_peptides = "One row per input peptide: normalized sequence, matching sequence, acceptance status and normalization notes.",
@@ -328,6 +329,7 @@ output_manifest_html <- function(result, artifact_paths) {
     warnings = "Normalization warnings for excluded or unsupported input values, or an explicit statement that there were none.",
     result_rds = "Complete analysis object, including inputs, settings and all result tables. Open with readRDS() in R."
   )
+  # nolint end
   row_counts <- c(
     input_peptides = nrow(result$peptide_input$input),
     normalized_peptides = nrow(result$normalized_peptides),
@@ -355,7 +357,7 @@ output_manifest_html <- function(result, artifact_paths) {
         html_text(basename(path), attribute = TRUE), html_text(basename(path))
       )
     } else {
-      paste0('<code>', html_text(basename(path)), '</code><br>File not available')
+      paste0("<code>", html_text(basename(path)), "</code><br>File not available")
     }
     count <- if (name %in% names(row_counts)) {
       as.character(row_counts[[name]])
@@ -365,16 +367,17 @@ output_manifest_html <- function(result, artifact_paths) {
     paste0(
       '<tr><td class="manifest-file">', link,
       '</td><td class="numeric">', html_text(count),
-      '</td><td>', html_text(descriptions[[name]]), '</td></tr>'
+      "</td><td>", html_text(descriptions[[name]]), "</td></tr>"
     )
   }, character(1))
   paste0(
-    '<p>These files contain the complete data behind this report. Row counts exclude CSV headers. ',
-    'Figure PDF and PNG downloads remain beside their figures. Keep the report and its output folder together so file links work.</p>',
+    "<p>These files contain the complete data behind this report. Row counts exclude CSV headers. ",
+    "Figure PDF and PNG downloads remain beside their figures. ",
+    "Keep the report and its output folder together so file links work.</p>",
     '<div class="table-wrap"><table class="output-manifest"><thead><tr>',
     '<th scope="col">File</th><th scope="col">Rows</th>',
     '<th scope="col">Contents and use</th></tr></thead><tbody>',
-    paste(rows, collapse = ""), '</tbody></table></div>'
+    paste(rows, collapse = ""), "</tbody></table></div>"
   )
 }
 
@@ -706,7 +709,7 @@ write_fusion_report <- function(result, output_dir, artifact_paths) {
     ""
   } else {
     paste0(
-      '<details><summary>Junction evaluation audit</summary>',
+      "<details><summary>Junction evaluation audit</summary>",
       "<p>Each row evaluates one mapped occurrence that contains both boundary ",
       "residues against one supplied junction. Non-crossing occurrences are ",
       "not included. The selected junction shown in the peptide summary ",
@@ -1000,7 +1003,7 @@ write_fusion_report <- function(result, output_dir, artifact_paths) {
     "Inserted residues do not count toward either flank. This remains a ",
     "sequence-level screening decision.</p>",
     junction_figure_html,
-    '<details><summary>Supplied junction metadata</summary>',
+    "<details><summary>Supplied junction metadata</summary>",
     "<p>The table contains the supplied sequence-junction metadata. Parent labels ",
     "and coordinates come from that input; the mapper checks internal sequence ",
     "consistency rather than independently establishing biological ancestry.</p>",
@@ -1026,7 +1029,7 @@ write_fusion_report <- function(result, output_dir, artifact_paths) {
     "residues paired within those bins. Local identity is calculated among paired ",
     "residues. Unaligned positions and gaps remain explicit in the alignment CSVs.</p>",
     table_to_html(alignment_table),
-    '<details><summary>Candidate non-match regions</summary>',
+    "<details><summary>Candidate non-match regions</summary>",
     "<p>Parent-only/fusion-only alignment positions and mismatches are candidates ",
     "for review. A parent-only peptide match does not establish biological domain ",
     "loss. This table includes global and local alignments; ",
@@ -1035,16 +1038,16 @@ write_fusion_report <- function(result, output_dir, artifact_paths) {
     paste(alignment_sections, collapse = ""), "</section>",
     '<section id="audit"><h2>Inputs and manifests</h2>',
     "<h3>Reference records</h3>", table_to_html(references),
-    '<details><summary>Input normalization audit</summary>',
+    "<details><summary>Input normalization audit</summary>",
     if (length(result$warnings) == 0L) {
       '<p class="validation-note">No input normalization warnings.</p>'
     } else {
       warning_html
     },
     table_to_html(result$normalized_peptides), "</details>",
-    '<details><summary>Run manifest: inputs, versions and settings</summary>',
-    '<p>This records the analysis environment and input hashes for this run. ',
-    'The file descriptions below identify the saved tables that contain each result.</p>',
+    "<details><summary>Run manifest: inputs, versions and settings</summary>",
+    "<p>This records the analysis environment and input hashes for this run. ",
+    "The file descriptions below identify the saved tables that contain each result.</p>",
     table_to_html(result$manifest), "</details>",
     '<details id="files"><summary>Output manifest: file contents and row counts</summary>',
     output_manifest_html(result, artifact_paths), "</details></section>",

@@ -245,7 +245,7 @@ testthat::test_that("unavailable output files are explained without broken downl
     publication_result, list(coverage_summary = missing_path)
   )
   testthat::expect_match(html, "File not available", fixed = TRUE)
-  testthat::expect_false(grepl('<a href=', html, fixed = TRUE))
+  testthat::expect_false(grepl("<a href=", html, fixed = TRUE))
   testthat::expect_match(
     output_manifest_html(publication_result, list()),
     "No saved data files were supplied", fixed = TRUE

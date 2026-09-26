@@ -45,6 +45,7 @@ required_packages <- c(
   "ggplot2",
   "htmltools",
   "base64enc",
+  "lintr",
   "testthat"
 )
 missing_packages <- required_packages[
@@ -98,6 +99,16 @@ for (path in parse_files) {
       gate_fail("Could not parse ", path, ": ", conditionMessage(error))
     }
   )
+}
+
+# Style rules live in .lintr at the project root.
+lint_results <- lapply(parse_files, lintr::lint)
+lint_count <- sum(lengths(lint_results))
+if (lint_count > 0L) {
+  for (lints in lint_results[lengths(lint_results) > 0L]) {
+    print(lints)
+  }
+  gate_fail(lint_count, " lint finding(s); see the listing above.")
 }
 
 production_files <- c(

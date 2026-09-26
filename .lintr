@@ -1,0 +1,11 @@
+linters: lintr::linters_with_defaults(
+    line_length_linter = lintr::line_length_linter(120L),
+    object_name_linter = lintr::object_name_linter(
+      styles = c("snake_case", "SNAKE_CASE"),
+      regexes = c(symbol_operator = "^[^[:alnum:]_.]+$")
+    ),
+    object_length_linter = lintr::object_length_linter(45L),
+    indentation_linter = NULL,
+    object_usage_linter = NULL
+  )
+encoding: "UTF-8"
