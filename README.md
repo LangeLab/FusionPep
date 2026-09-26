@@ -29,7 +29,7 @@ FusionPep analyzes sequence matches. It does not search spectra, validate PSMs, 
 </p>
 
 <p align="center">
-  <sub>The example report for the bundled PML::RARA data. <a href="wiki/Worked-Example.md">Tour every report section</a> or download the full output from the latest <a href="https://github.com/LangeLab/FusionPep/actions/workflows/demo.yml">Demo run</a>.</sub>
+  <sub>The example report for the bundled PML::RARA data. <a href="wiki/Worked-Example.md">Tour every report section</a>.</sub>
 </p>
 
 ## Quick start

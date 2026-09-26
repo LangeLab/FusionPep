@@ -10,8 +10,6 @@ Rscript run_fusion_mapper.R --output=results/example
 
 Open `results/example/fusion_peptide_mapper_report.html`. This page walks through that report section by section. The measurements describe the bundled input files with I/L-equivalent matching and the supplied minimum of three residues on each junction side.
 
-Without running anything, you can download the complete example output (report, figures, tables, and R result) as the `fusionpep-demo` artifact of the latest [Demo workflow run](https://github.com/LangeLab/FusionPep/actions/workflows/demo.yml). The screenshots on this page come from the same build.
-
 ![Top of the example report: section navigation, the header, five summary counts, and the junction decision figure](images/report-overview.png)
 
 The report opens with the question it answers. The summary counts give the valid input rows, the junction candidates and flank failures (distinct matching sequences), the matches shared with a supplied parent, and the fusion coverage. The contents sidebar follows you through the sections below.

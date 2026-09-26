@@ -1,36 +1,21 @@
 #!/usr/bin/env bash
-# Build the FusionPep demo from the bundled example.
+# Refresh the report screenshots and figure images used by the README and wiki.
 #
-# Runs the example into SITE_DIR (the full output folder, with an index page
-# that opens the report) and captures the report screenshots and web-sized
-# figures into IMAGE_DIR, which defaults to wiki/images: the README and wiki
-# reference those files. Run from the project root after setup_renv.R.
+# Runs the bundled example into OUTPUT_DIR, then captures the report sections
+# and web-sized figures into IMAGE_DIR (default wiki/images). Run from the
+# project root after setup_renv.R, with Chromium installed for Playwright.
 #
-# Usage: bash .github/scripts/build_demo.sh SITE_DIR [IMAGE_DIR]
+# Usage: bash .github/scripts/build_demo.sh OUTPUT_DIR [IMAGE_DIR]
 set -euo pipefail
 
-site_dir=${1:?usage: build_demo.sh SITE_DIR [IMAGE_DIR]}
+output_dir=${1:?usage: build_demo.sh OUTPUT_DIR [IMAGE_DIR]}
 image_dir=${2:-wiki/images}
 [[ -f run_fusion_mapper.R ]] || { echo "run from the FusionPep project root" >&2; exit 1; }
-mkdir -p "$site_dir"
-site_dir=$(cd "$site_dir" && pwd)
+mkdir -p "$output_dir"
+output_dir=$(cd "$output_dir" && pwd)
 
-Rscript run_fusion_mapper.R --output="$site_dir"
-cat > "$site_dir/index.html" <<'HTML'
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="refresh" content="0; url=fusion_peptide_mapper_report.html">
-<title>FusionPep example report</title>
-</head>
-<body>
-<p><a href="fusion_peptide_mapper_report.html">Open the FusionPep example report</a>.</p>
-</body>
-</html>
-HTML
-
+Rscript run_fusion_mapper.R --output="$output_dir"
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-uv run --quiet "$script_dir/demo_images.py" "$site_dir" "$image_dir"
-echo "demo site: $site_dir"
-echo "demo images: $image_dir"
+uv run --quiet "$script_dir/demo_images.py" "$output_dir" "$image_dir"
+echo "example output: $output_dir"
+echo "images: $image_dir"
