@@ -36,3 +36,16 @@ testthat::test_that("the runner works from another directory without a global re
   ))
   testthat::expect_true(file.exists(file.path(output_dir, "peptide_hits.csv")))
 })
+
+testthat::test_that("the runner keeps Windows absolute paths instead of joining them to the project", {
+  run <- run_cli(c(
+    "--fasta=C:/fusionpep-missing/sequences.fasta",
+    paste0("--output=", tempfile("fusionpep-cli-"))
+  ))
+  testthat::expect_false(identical(run$status, 0L))
+  testthat::expect_true(any(grepl(
+    "FASTA file does not exist: C:/fusionpep-missing/sequences.fasta",
+    run$output,
+    fixed = TRUE
+  )), info = paste(run$output, collapse = "\n"))
+})

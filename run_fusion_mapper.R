@@ -108,7 +108,8 @@ resolve_project_path <- function(path, project_root) {
   if (is.null(path)) {
     return(NULL)
   }
-  if (grepl("^(/|~[/])", path)) {
+  # Absolute: POSIX root, home directory, Windows drive, or UNC share.
+  if (grepl("^(/|~$|~[/\\\\]|[A-Za-z]:[/\\\\]|\\\\\\\\)", path)) {
     return(normalizePath(path.expand(path), mustWork = FALSE))
   }
   normalizePath(file.path(project_root, path), mustWork = FALSE)
