@@ -43,9 +43,10 @@ testthat::test_that("the runner keeps Windows absolute paths instead of joining 
     paste0("--output=", tempfile("fusionpep-cli-"))
   ))
   testthat::expect_false(identical(run$status, 0L))
+  # normalizePath() keeps the drive path on every platform; Windows reports it
+  # with backslashes.
   testthat::expect_true(any(grepl(
-    "FASTA file does not exist: C:/fusionpep-missing/sequences.fasta",
-    run$output,
-    fixed = TRUE
+    "FASTA file does not exist: C:[/\\\\]fusionpep-missing[/\\\\]sequences[.]fasta",
+    run$output
   )), info = paste(run$output, collapse = "\n"))
 })

@@ -57,8 +57,25 @@ Rscript -e 'testthat::test_dir("tests/testthat")'
 
 Tests that write outputs use temporary directories. For a separate example run, use a new output directory such as `results/review` rather than overwriting a saved analysis.
 
-`Rscript check_project.R` performs the full project check and regenerates files in `results/`. Preserve existing inputs and outputs before using it. Neither analysis nor the project check installs dependencies.
-
-To change a dependency, install the new version into the project library with `pak::pkg_install()`, then record it with `Rscript -e 'renv::snapshot(type = "explicit")'` and review the `renv.lock` diff before committing. Setup never updates the lockfile on its own.
+`Rscript check_project.R` performs the full project check: it parses every R file, applies the lint rules in `.lintr`, rejects installation and debugging calls in production code, runs the tests, runs the bundled example, and checks the outputs. It regenerates files in `results/`, so preserve existing outputs before using it. Neither analysis nor the project check installs dependencies.
 
 Documentation changes can be checked without rerunning scientific calculations. Check the stated behavior against the source and verify the affected links and examples.
+
+## Continuous integration and releases
+
+The `CI` workflow runs on pushes and pull requests to `main`, and monthly against current package repositories:
+
+- **Project check (Linux):** installs the locked dependencies with `setup_renv.R`, confirms that setup left `renv.lock` unchanged, checks release metadata, runs `check_project.R`, and requires at least 90% line coverage. The example report is kept as a run artifact.
+- **Tests (macOS and Windows):** install the locked dependencies and run the test suite after the Linux check passes.
+- **Workflow security:** audits the workflows with [zizmor](https://docs.zizmor.sh/). Actions are pinned to commit hashes, and Dependabot proposes updates monthly.
+- **R dependencies:** Dependabot does not read `renv.lock`, so the monthly run lists locked packages that have newer versions in its job summary.
+
+The package library is cached per operating system, R version, and lockfile, so a run after the first mainly measures the checks themselves.
+
+Changes are recorded in `NEWS.md` under `# fusionpep (development version)` while `DESCRIPTION` carries a development version such as `0.1.0.9000`. To release, set `Version` in `DESCRIPTION` and `version` and `date-released` in `CITATION.cff` to the new `X.Y.Z`, rename the NEWS heading to `# fusionpep X.Y.Z`, and merge to `main`. After every CI job passes, the release job tags `vX.Y.Z` and publishes a GitHub release with the NEWS section as notes and a source archive with its SHA-256 checksum. Pull requests run the same metadata check, so an inconsistent version fails before merging.
+
+The `Wiki` workflow validates `wiki/` on pull requests and mirrors it to the GitHub Wiki after a merge to `main`.
+
+## Dependency changes
+
+To change a dependency, install the new version into the project library with `pak::pkg_install()`, then record it with `Rscript -e 'renv::snapshot(type = "explicit")'` and review the `renv.lock` diff before committing. Setup never updates the lockfile on its own.

@@ -1,0 +1,71 @@
+name: Wiki
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "wiki/**"
+      - ".github/scripts/wiki_check.py"
+      - ".github/scripts/wiki_publish.sh"
+      - ".github/workflows/wiki.yml"
+  push:
+    branches: [main]
+    paths:
+      - "wiki/**"
+      - ".github/scripts/wiki_check.py"
+      - ".github/scripts/wiki_publish.sh"
+      - ".github/workflows/wiki.yml"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the main-branch wiki after validation
+        required: true
+        default: false
+        type: boolean
+
+permissions: {}
+
+concurrency:
+  group: wiki-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate wiki source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check wiki pages, links, and images
+        run: python3 .github/scripts/wiki_check.py wiki
+
+  publish:
+    name: Publish GitHub Wiki
+    needs: validate
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # A dedicated environment scopes WIKI_TOKEN and allows protection rules.
+    environment:
+      name: wiki
+      url: https://github.com/${{ github.repository }}/wiki
+    permissions:
+      contents: write # Pushes to the repository's wiki when WIKI_TOKEN is not set.
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Mirror wiki/ to the GitHub Wiki repository
+        env:
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN || secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/wiki_publish.sh wiki

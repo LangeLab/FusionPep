@@ -18,6 +18,7 @@
 
 # Generated runs and interrupted output writes.
 /results/
+/coverage.xml
 .fusionpep-*/
 .fusion-report-*
 

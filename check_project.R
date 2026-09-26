@@ -89,6 +89,11 @@ parse_files <- c(
     pattern = "\\.R$",
     recursive = TRUE,
     full.names = TRUE
+  ),
+  list.files(
+    file.path(project_root, ".github", "scripts"),
+    pattern = "\\.R$",
+    full.names = TRUE
   )
 )
 parse_files <- unique(parse_files[file.exists(parse_files)])

@@ -1,0 +1,16 @@
+version: 2
+
+# Dependabot covers the pinned GitHub Actions. It cannot read renv.lock; the
+# monthly CI run reports outdated R packages in its job summary instead.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "ci"

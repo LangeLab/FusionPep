@@ -1,0 +1,234 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Monthly run against current package repositories, with an R dependency report.
+    - cron: "17 6 1 * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # Superseded pull request runs are cancelled; main runs finish so a release is never cut short.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  workflow-security:
+    name: Workflow security (zizmor)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Audit workflows
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        with:
+          advanced-security: false
+
+  check:
+    name: Project check (Linux, coverage)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read R version from renv.lock
+        id: r
+        shell: bash
+        run: echo "version=$(python3 -c 'import json; print(json.load(open("renv.lock"))["R"]["Version"])')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up R ${{ steps.r.outputs.version }}
+        uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2.14.0
+        with:
+          r-version: ${{ steps.r.outputs.version }}
+          use-public-rspm: false
+
+      - name: Cache project library
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: renv/library
+          key: renv-${{ runner.os }}-${{ runner.arch }}-r${{ steps.r.outputs.version }}-${{ hashFiles('renv.lock') }}
+          # setup_renv.R replaces any restored package whose version differs from renv.lock.
+          restore-keys: renv-${{ runner.os }}-${{ runner.arch }}-r${{ steps.r.outputs.version }}-
+
+      - name: Install locked dependencies
+        run: Rscript setup_renv.R
+
+      - name: Confirm setup left the lockfile unchanged
+        run: git diff --exit-code -- renv.lock renv/settings.json
+
+      - name: Check release metadata
+        run: bash .github/scripts/release_metadata.sh
+
+      - name: Run project check (parse, lint, tests, example run, outputs)
+        run: Rscript check_project.R
+
+      - name: Measure test coverage
+        run: Rscript .github/scripts/coverage.R 90 coverage.xml
+
+      - name: Report outdated R dependencies
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: Rscript .github/scripts/r_outdated.R
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage
+          path: coverage.xml
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload example report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: example-report
+          path: results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  test:
+    name: Tests (${{ matrix.name }})
+    needs: check
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS arm64
+            os: macos-15
+          - name: Windows x64
+            os: windows-2025
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read R version from renv.lock
+        id: r
+        shell: bash
+        run: echo "version=$(python3 -c 'import json; print(json.load(open("renv.lock"))["R"]["Version"])')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up R ${{ steps.r.outputs.version }}
+        uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2.14.0
+        with:
+          r-version: ${{ steps.r.outputs.version }}
+          use-public-rspm: false
+
+      - name: Cache project library
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: renv/library
+          key: renv-${{ runner.os }}-${{ runner.arch }}-r${{ steps.r.outputs.version }}-${{ hashFiles('renv.lock') }}
+          restore-keys: renv-${{ runner.os }}-${{ runner.arch }}-r${{ steps.r.outputs.version }}-
+
+      - name: Install locked dependencies
+        run: Rscript setup_renv.R
+
+      - name: Run tests
+        run: Rscript -e "testthat::test_dir('tests/testthat', reporter = 'summary', stop_on_failure = TRUE)"
+
+  codecov:
+    name: Upload coverage
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      id-token: write # Codecov authenticates the upload with OIDC instead of a stored token.
+    steps:
+      - name: Download coverage report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: coverage
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          use_oidc: true
+          files: ./coverage.xml
+          disable_search: true
+          fail_ci_if_error: true
+
+  release:
+    name: Release
+    needs: [workflow-security, check, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write # Creates the release tag and the GitHub release.
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Read release metadata
+        id: metadata
+        run: bash .github/scripts/release_metadata.sh "$RUNNER_TEMP/release-notes.md"
+
+      - name: Decide whether to release
+        id: decide
+        env:
+          VERSION: ${{ steps.metadata.outputs.version }}
+          IS_RELEASE_VERSION: ${{ steps.metadata.outputs.release }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$IS_RELEASE_VERSION" != "true" ]]; then
+            echo "Development version $VERSION; no release." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          elif git rev-parse --quiet --verify "refs/tags/v$VERSION" > /dev/null; then
+            echo "Tag v$VERSION already exists; no release." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build source archive
+        if: steps.decide.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.metadata.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="FusionPep-$VERSION.tar.gz"
+          git archive --format=tar.gz --prefix="FusionPep-$VERSION/" -o "$RUNNER_TEMP/$archive" "$GITHUB_SHA"
+          (cd "$RUNNER_TEMP" && sha256sum "$archive" > "$archive.sha256")
+
+      - name: Create GitHub release
+        if: steps.decide.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.metadata.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "v$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "FusionPep v$VERSION" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            "$RUNNER_TEMP/FusionPep-$VERSION.tar.gz" \
+            "$RUNNER_TEMP/FusionPep-$VERSION.tar.gz.sha256"
+          echo "Released v$VERSION." >> "$GITHUB_STEP_SUMMARY"
