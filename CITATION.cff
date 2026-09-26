@@ -1,25 +1,34 @@
 cff-version: 1.2.0
-message: "If you use FusionPep, please cite this software."
+message: "If you use FusionPep, please cite it as below."
 type: software
 title: "FusionPep: Peptide Mapping and Junction Review"
+version: 0.0.0.9000
+license: MIT
+repository-code: "https://github.com/LangeLab/FusionPep"
+url: "https://github.com/LangeLab/FusionPep/wiki"
 authors:
   - family-names: Ergin
     given-names: Enes K.
+    affiliation: "University of British Columbia"
+    orcid: "https://orcid.org/0000-0001-9810-7399"
   - family-names: Conrrero
     given-names: Agustina
-  - name: Lange Lab
-version: 0.1.0
-license: MIT
+  - family-names: Lange
+    given-names: Philipp F.
+    affiliation: "University of British Columbia"
+    orcid: "https://orcid.org/0000-0003-1171-5864"
 keywords:
-  - peptide mapping
+  - proteomics
   - fusion proteins
+  - peptide mapping
+  - fusion junction
   - R
 abstract: >-
   FusionPep maps peptide sequences supplied directly or from peptide-spectrum
   match (PSM) exports to a proposed fusion protein and its two selected parent
-  proteins. It reports mapped occurrences, parent sharing,
-  residue coverage, and pairwise fusion-to-parent alignments. When junction coordinates
-  are supplied, FusionPep checks whether an occurrence crosses a junction and
+  proteins. It reports mapped occurrences, parent sharing, residue coverage,
+  and pairwise fusion-to-parent alignments. When junction coordinates are
+  supplied, FusionPep checks whether an occurrence crosses a junction and
   meets the minimum flank length required on each side. The software evaluates
   sequence matches; it does not search spectra, validate PSMs, establish
   peptide detection, or prove biological fusion expression.

@@ -1,11 +1,13 @@
 Package: fusionpep
 Type: Project
 Title: FusionPep: Peptide Mapping and Junction Review
-Version: 0.1.0
+Version: 0.0.0.9000
 Authors@R: c(
-    person(given = "Enes K.", family = "Ergin", role = "aut"),
-    person(given = "Agustina", family = "Conrrero", role = "aut"),
-    person("Lange Lab", role = c("aut", "cre"))
+    person("Enes K.", "Ergin", email = "eneskemalergin@gmail.com",
+           role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9810-7399")),
+    person("Agustina", "Conrrero", role = "aut"),
+    person("Philipp F.", "Lange", role = "aut",
+           comment = c(ORCID = "0000-0003-1171-5864"))
     )
 Description: Maps peptide sequences supplied directly or from peptide-spectrum
     match (PSM) exports to a proposed fusion protein and its two selected
@@ -17,6 +19,8 @@ Description: Maps peptide sequences supplied directly or from peptide-spectrum
     an HTML report. FusionPep does not search spectra, validate PSMs, establish
     peptide detection, or prove biological fusion expression.
 License: MIT + file LICENSE
+URL: https://github.com/LangeLab/FusionPep
+BugReports: https://github.com/LangeLab/FusionPep/issues
 Encoding: UTF-8
 Depends:
     R (>= 4.6.0)
