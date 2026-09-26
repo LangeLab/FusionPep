@@ -25,14 +25,17 @@ gate_fail <- function(...) {
 project_root <- dirname(script_path())
 setwd(project_root)
 
-if (!requireNamespace("renv", quietly = TRUE)) {
-  gate_fail("The renv package is unavailable; the gate will not install it.")
-}
 activation_file <- file.path(project_root, "renv", "activate.R")
 if (!file.exists(activation_file)) {
   gate_fail("Missing renv activation file: ", activation_file)
 }
+# Startup files were read from the caller's directory, not necessarily this
+# project; activate the project library explicitly, as the runner does.
+Sys.setenv(RENV_PROJECT = project_root, RENV_CONFIG_SANDBOX_ENABLED = "FALSE")
 source(activation_file, local = TRUE)
+if (!requireNamespace("renv", quietly = TRUE)) {
+  gate_fail("The renv package is unavailable; the gate will not install it.")
+}
 
 local_library <- renv::paths$library(project = project_root)
 required_packages <- c(

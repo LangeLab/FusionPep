@@ -125,11 +125,16 @@ if (!file.exists(activation_file)) {
     call. = FALSE
   )
 }
-Sys.setenv(RENV_PROJECT = PROJECT_ROOT)
-local_library <- renv::paths$library(project = PROJECT_ROOT)
-normalised_library <- normalizePath(local_library, mustWork = FALSE)
-normalised_paths <- normalizePath(.libPaths(), mustWork = FALSE)
-if (!normalised_library %in% normalised_paths) {
+# R reads .Rprofile and .Renviron only from the working directory. Activate the
+# project library by path so the runner works from any directory and loads renv
+# from the project library rather than requiring a global installation.
+project_library_active <- function() {
+  isNamespaceLoaded("renv") &&
+    normalizePath(renv::paths$library(project = PROJECT_ROOT), mustWork = FALSE) %in%
+      normalizePath(.libPaths(), mustWork = FALSE)
+}
+Sys.setenv(RENV_PROJECT = PROJECT_ROOT, RENV_CONFIG_SANDBOX_ENABLED = "FALSE")
+if (!project_library_active()) {
   source(activation_file, local = TRUE)
 }
 
