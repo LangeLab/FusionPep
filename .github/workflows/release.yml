@@ -1,8 +1,9 @@
 name: Release
 
 # Pushing a vX.Y.Z tag publishes a GitHub release. The tag must match the
-# DESCRIPTION version, point at a commit on main that passed CI, and have
-# notes under "# fusionpep X.Y.Z" in NEWS.md and a date-released in CITATION.cff.
+# DESCRIPTION version and point at a commit on main that passed CI.
+# CHANGELOG.md needs a "## [X.Y.Z] - YYYY-MM-DD" section, whose body becomes the
+# release notes, dated the same as date-released in CITATION.cff.
 on:
   push:
     tags: ["v*.*.*"]

@@ -72,15 +72,16 @@ The `CI` workflow runs on pushes and pull requests to `main`, and monthly agains
 
 The package library is cached per operating system, R version, and lockfile, so a run after the first mainly measures the checks themselves.
 
-Changes are recorded in `NEWS.md` under a `# fusionpep X.Y.Z` heading matching the `Version` in `DESCRIPTION` and `version` in `CITATION.cff`; CI fails when the three disagree. Between releases, the version can be a development version such as `0.1.0.9000` with a `# fusionpep (development version)` heading.
+Changes are recorded in `CHANGELOG.md`, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/). Unreleased changes go under `## [Unreleased]`; each release has a `## [X.Y.Z] - YYYY-MM-DD` section. `DESCRIPTION` and `CITATION.cff` carry the version being prepared, and CI fails when they disagree or a changelog heading is malformed.
 
 Nothing is released until a version tag is pushed. To release version `X.Y.Z`:
 
-1. Set the version in `DESCRIPTION` and `CITATION.cff`, add `date-released` to `CITATION.cff`, and put the notes under `# fusionpep X.Y.Z` in `NEWS.md`.
+1. Set `Version` in `DESCRIPTION` and `version` in `CITATION.cff` to `X.Y.Z`, and add `date-released: "YYYY-MM-DD"` to `CITATION.cff`.
+1. Rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD` with the same date, and start a new empty `## [Unreleased]` above it if you like.
 1. Merge to `main` and wait for CI to pass.
 1. Tag that commit and push the tag: `git tag -s vX.Y.Z && git push origin vX.Y.Z`.
 
-The `Release` workflow then checks that the tag is on `main`, matches the version metadata, and has a passing CI run. It publishes a GitHub release with the NEWS section as notes and a source archive with its SHA-256 checksum.
+The `Release` workflow then checks that the tag is on `main`, matches the version and dates, and has a passing CI run. It publishes a GitHub release whose notes are that version's changelog section, with a source archive and its SHA-256 checksum.
 
 The `Wiki` workflow validates `wiki/` on pull requests and mirrors it to the GitHub Wiki after a merge to `main`.
 

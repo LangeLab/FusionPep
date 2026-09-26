@@ -76,7 +76,7 @@ jobs:
       - name: Confirm setup left the lockfile unchanged
         run: git diff --exit-code -- renv.lock renv/settings.json
 
-      - name: Check version metadata (DESCRIPTION, CITATION.cff, NEWS.md)
+      - name: Check version metadata (DESCRIPTION, CITATION.cff, CHANGELOG.md)
         run: bash .github/scripts/release_metadata.sh
 
       - name: Run project check (parse, lint, tests, example run, outputs)
