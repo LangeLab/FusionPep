@@ -1,26 +1,28 @@
 # Run the CLI as users do: a separate Rscript process started from an
 # unrelated directory, with no global or inherited library that could supply
-# renv or the analysis packages.
+# renv or the analysis packages. processx sets the working directory and
+# environment and quotes arguments the same way on every platform.
 run_cli <- function(arguments) {
   working_dir <- tempfile("fusionpep-cwd-")
   dir.create(working_dir)
   empty_library <- tempfile("fusionpep-no-library-")
   dir.create(empty_library)
-  old_dir <- setwd(working_dir)
-  on.exit(setwd(old_dir), add = TRUE)
-  output <- suppressWarnings(system2(
-    file.path(R.home("bin"), "Rscript"),
-    c(shQuote(file.path(project_root, "run_fusion_mapper.R")), shQuote(arguments)),
-    stdout = TRUE,
-    stderr = TRUE,
+  rscript <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
+  result <- processx::run(
+    rscript,
+    c(file.path(project_root, "run_fusion_mapper.R"), arguments),
+    wd = working_dir,
     env = c(
-      "R_LIBS=",
-      paste0("R_LIBS_USER=", empty_library),
-      paste0("R_LIBS_SITE=", empty_library),
-      "RENV_PROJECT="
-    )
-  ))
-  list(status = attr(output, "status") %||% 0L, output = output)
+      "current",
+      R_LIBS = "",
+      R_LIBS_USER = empty_library,
+      R_LIBS_SITE = empty_library,
+      RENV_PROJECT = ""
+    ),
+    error_on_status = FALSE,
+    stderr_to_stdout = TRUE
+  )
+  list(status = result$status, output = strsplit(result$stdout, "\r?\n")[[1L]])
 }
 
 testthat::test_that("the runner works from another directory without a global renv", {
