@@ -4,7 +4,7 @@ Start with the reported file, column, or junction ID. FusionPep rejects inconsis
 
 ## Setup or package checks fail
 
-Confirm that R meets the project's minimum version and that `renv` is available for bootstrap. Run `Rscript setup_renv.R` from the project root to populate the local library. This command installs the locked dependency versions without changing `renv.lock`; it is separate from analysis.
+Confirm that R meets the project's minimum version and can reach the network: starting R in the project directory downloads the locked `renv` version. Run `Rscript setup_renv.R` from the project root to populate the local library. This command installs the locked dependency versions without changing `renv.lock`; it is separate from analysis.
 
 The runner checks packages in the project-local library against `renv.lock`. An installed global copy does not satisfy that check. A version mismatch means the local library needs to be reconciled with the lockfile, not that the check should be removed.
 
