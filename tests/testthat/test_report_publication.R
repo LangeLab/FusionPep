@@ -1,10 +1,3 @@
-project_root <- normalizePath(getwd(), mustWork = TRUE)
-if (!file.exists(file.path(project_root, "R", "fusion_mapper.R"))) {
-  project_root <- normalizePath(file.path(project_root, "..", ".."), mustWork = TRUE)
-}
-source(file.path(project_root, "R", "fusion_mapper.R"))
-source(file.path(project_root, "report", "fusion_report.R"))
-
 publication_result <- run_fusion_analysis(
   file.path(project_root, "input", "sequences.fasta"),
   file.path(project_root, "input", "peptides.csv"),

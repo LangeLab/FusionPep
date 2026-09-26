@@ -1,10 +1,3 @@
-project_root <- normalizePath(file.path(getwd()), mustWork = TRUE)
-if (!file.exists(file.path(project_root, "R", "fusion_mapper.R"))) {
-  project_root <- normalizePath(file.path(project_root, "..", ".."), mustWork = TRUE)
-}
-source(file.path(project_root, "R", "fusion_mapper.R"))
-source(file.path(project_root, "report", "fusion_report.R"))
-
 testthat::test_that("normalization handles supported modifications and flanks", {
   normalized <- normalize_one_peptide(
     "K.M[Oxidation (M)]PEPTIDE.R",

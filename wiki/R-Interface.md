@@ -5,7 +5,7 @@ Run these examples from the FusionPep project root after completing [setup](Gett
 ## Analyze the bundled inputs
 
 ```r
-source("R/fusion_mapper.R")
+for (path in list.files("R", pattern = "[.]R$", full.names = TRUE)) source(path)
 source("report/fusion_report.R")
 
 result <- run_fusion_analysis(

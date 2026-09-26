@@ -145,7 +145,9 @@ if (!identical(as.integer(runner_status), 0L)) {
   gate_fail("The real example runner exited with status ", runner_status, ".")
 }
 
-source(file.path(project_root, "R", "fusion_mapper.R"), local = TRUE)
+for (path in list.files(file.path(project_root, "R"), pattern = "[.]R$", full.names = TRUE)) {
+  source(path, local = TRUE)
+}
 output_dir <- file.path(project_root, "results")
 output_paths <- fusion_output_paths(output_dir)
 missing_outputs <- names(output_paths)[

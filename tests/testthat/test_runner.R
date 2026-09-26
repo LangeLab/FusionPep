@@ -1,8 +1,3 @@
-project_root <- normalizePath(file.path(getwd()), mustWork = TRUE)
-if (!file.exists(file.path(project_root, "run_fusion_mapper.R"))) {
-  project_root <- normalizePath(file.path(project_root, "..", ".."), mustWork = TRUE)
-}
-
 # Run the CLI as users do: a separate Rscript process started from an
 # unrelated directory, with no global or inherited library that could supply
 # renv or the analysis packages.

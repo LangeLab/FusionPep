@@ -25,13 +25,15 @@ flowchart TD
 
 ## Source files and directories
 
-- `R/fusion_mapper.R` contains input readers, validation, peptide normalization and matching, junction evaluation, coverage, pairwise alignment, plotting functions, and output writing. Plotting and file writing currently live beside the analysis functions in this file.
+- `R/fusion_mapper.R` contains input readers, validation, peptide normalization and matching, junction evaluation, coverage, pairwise alignment, the run manifest, and `run_fusion_analysis()`. It writes no files.
+- `R/fusion_figures.R` draws the coverage, junction, and alignment figures from an analysis result and saves each as a PNG and a vector PDF.
+- `R/fusion_outputs.R` defines the output filenames and writes the tables, RDS, warnings, and figures through a staging directory.
 - `report/fusion_report.R` builds the HTML tables, annotated sequences, alignment views, figure embeds, manifests, navigation, and print styles.
 - `run_fusion_mapper.R` resolves configuration and CLI paths, checks the local library, and calls the analysis and writers.
 - `setup_renv.R` establishes the project-local library, and installs the versions pinned in `renv.lock` with `pak`. It writes a lockfile only when none exists.
 - `check_project.R` checks the environment and source, runs tests, regenerates the example, and verifies outputs. It writes into `results/`.
 - `input/` holds the bundled protein FASTA, peptide CSV, junction CSV, and detailed source notes. These are reference example inputs, not new experimental data.
-- `tests/testthat/` contains tests for mapping, coordinates, normalization, junction decisions, coverage, alignments, figures, and report behavior.
+- `tests/testthat/` contains tests for mapping, coordinates, normalization, junction decisions, coverage, alignments, figures, report behavior, and the command-line runner. `helper-fusionpep.R` loads the project code for every test file.
 - `renv/activate.R`, `renv/settings.json`, `renv.lock`, `.Rprofile`, and `.Renviron` define environment activation, dependency versions, and project-local cache settings.
 - `wiki/` holds the maintained GitHub Wiki Markdown sources and copied example image.
 

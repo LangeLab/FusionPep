@@ -204,7 +204,9 @@ if (file.exists(lockfile_path)) {
   }
 }
 
-source(file.path(PROJECT_ROOT, "R", "fusion_mapper.R"), local = TRUE)
+for (path in list.files(file.path(PROJECT_ROOT, "R"), pattern = "[.]R$", full.names = TRUE)) {
+  source(path, local = TRUE)
+}
 source(file.path(PROJECT_ROOT, "report", "fusion_report.R"), local = TRUE)
 
 arguments <- parse_arguments(commandArgs(trailingOnly = TRUE))
