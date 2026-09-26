@@ -28,7 +28,7 @@ flowchart TD
 - `R/fusion_mapper.R` contains input readers, validation, peptide normalization and matching, junction evaluation, coverage, pairwise alignment, plotting functions, and output writing. Plotting and file writing currently live beside the analysis functions in this file.
 - `report/fusion_report.R` builds the HTML tables, annotated sequences, alignment views, figure embeds, manifests, navigation, and print styles.
 - `run_fusion_mapper.R` resolves configuration and CLI paths, checks the local library, and calls the analysis and writers.
-- `setup_renv.R` establishes the project-local library, installs dependencies with `pak`, and writes the lockfile snapshot.
+- `setup_renv.R` establishes the project-local library, and installs the versions pinned in `renv.lock` with `pak`. It writes a lockfile only when none exists.
 - `check_project.R` checks the environment and source, runs tests, regenerates the example, and verifies outputs. It writes into `results/`.
 - `input/` holds the bundled protein FASTA, peptide CSV, junction CSV, and detailed source notes. These are reference example inputs, not new experimental data.
 - `tests/testthat/` contains tests for mapping, coordinates, normalization, junction decisions, coverage, alignments, figures, and report behavior.
@@ -56,5 +56,7 @@ Rscript -e 'testthat::test_dir("tests/testthat")'
 Tests that write outputs use temporary directories. For a separate example run, use a new output directory such as `results/review` rather than overwriting a saved analysis.
 
 `Rscript check_project.R` performs the full project check and regenerates files in `results/`. Preserve existing inputs and outputs before using it. Neither analysis nor the project check installs dependencies.
+
+To change a dependency, install the new version into the project library with `pak::pkg_install()`, then record it with `Rscript -e 'renv::snapshot(type = "explicit")'` and review the `renv.lock` diff before committing. Setup never updates the lockfile on its own.
 
 Documentation changes can be checked without rerunning scientific calculations. Check the stated behavior against the source and verify the affected links and examples.

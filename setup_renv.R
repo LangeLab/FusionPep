@@ -3,6 +3,10 @@
 # Initialise the project-local renv environment and install dependencies with
 # pak.  This script intentionally does not call install.packages(): renv must
 # already be available as the one bootstrap prerequisite.
+#
+# When renv.lock exists, setup installs exactly the locked versions and leaves
+# the lockfile unchanged.  A lockfile is written only when none exists; changing
+# dependencies is a separate, reviewed step (see the Architecture wiki page).
 
 `%||%` <- function(x, y) {
   if (is.null(x) || length(x) == 0L || (length(x) == 1L && is.na(x))) y else x
@@ -134,7 +138,14 @@ if (!requireNamespace("pak", quietly = TRUE, lib.loc = local_library)) {
   )
 }
 
-locked_package_specs <- function(lockfile) {
+# Return install specifications for the locked packages: `pak` specs for pak,
+# and `archived` specs for Bioconductor versions that are no longer current.
+# pak finds bioc::pkg@version only while that version is current in its
+# Bioconductor release; a later patch release moves it to the release's source
+# archive.  pak installs those by archive URL, so their dependents build
+# against the locked version, and renv then reinstalls them from the same
+# archive to record them as Bioconductor installs matching renv.lock.
+locked_package_specs <- function(lockfile, available) {
   if (!file.exists(lockfile)) {
     return(NULL)
   }
@@ -152,6 +163,7 @@ locked_package_specs <- function(lockfile) {
   if (is.null(records) || length(records) == 0L) {
     return(NULL)
   }
+  bioc_version <- as.character(lock$Bioconductor$Version %||% NA_character_)
 
   specs <- vapply(records, function(record) {
     package <- as.character(record$Package %||% NA_character_)
@@ -159,28 +171,44 @@ locked_package_specs <- function(lockfile) {
     source <- as.character(record$Source %||% "")
     repository <- as.character(record$Repository %||% "")
     if (is.na(package) || is.na(version) || !nzchar(package) || !nzchar(version)) {
-      return(NA_character_)
+      stop("renv.lock contains a record without a package name or version.", call. = FALSE)
     }
-    prefix <- if (
-      identical(source, "Bioconductor") ||
-        grepl("Bioconductor", repository, fixed = TRUE)
-    ) {
-      "bioc"
-    } else if (source %in% c("Repository", "CRAN", "standard")) {
-      "cran"
-    } else {
-      stop(
-        "Unsupported package source in renv.lock for ",
-        package,
-        ": ",
-        source,
-        call. = FALSE
-      )
+    if (identical(source, "Bioconductor") ||
+        grepl("Bioconductor", repository, fixed = TRUE)) {
+      current <- any(available$package == package & available$version == version)
+      if (!current) {
+        return(paste0("archived::", package, "@", version))
+      }
+      # Reuse the recorded pak reference so the installed package metadata
+      # matches renv.lock; the version check after installation still applies.
+      return(as.character(record$RemotePkgRef %||% paste0("bioc::", package, "@", version)))
     }
-    paste0(prefix, "::", package, "@", version)
+    if (source %in% c("Repository", "CRAN", "standard")) {
+      return(paste0("cran::", package, "@", version))
+    }
+    stop(
+      "Unsupported package source in renv.lock for ",
+      package,
+      ": ",
+      source,
+      call. = FALSE
+    )
   }, character(1))
-  specs <- specs[!is.na(specs)]
-  if (length(specs) == 0L) NULL else unname(specs)
+  specs <- unname(specs)
+  archived <- startsWith(specs, "archived::")
+  archived_packages <- sub("^archived::([^@]+)@.*$", "\\1", specs[archived])
+  archived_versions <- sub("^archived::[^@]+@", "", specs[archived])
+  if (any(archived) && is.na(bioc_version)) {
+    stop("renv.lock does not record its Bioconductor version.", call. = FALSE)
+  }
+  archive_urls <- sprintf(
+    "url::https://bioconductor.org/packages/%s/bioc/src/contrib/Archive/%s/%s_%s.tar.gz",
+    bioc_version, archived_packages, archived_packages, archived_versions
+  )
+  list(
+    pak = c(specs[!archived], archive_urls),
+    archived = sub("^archived::", "bioc::", specs[archived])
+  )
 }
 
 analysis_packages <- c(
@@ -195,32 +223,50 @@ analysis_packages <- c(
   "testthat"
 )
 lockfile_path <- file.path(project_root, "renv.lock")
-locked_specs <- locked_package_specs(lockfile_path)
-package_specs <- if (length(locked_specs) > 0L) {
-  message("Using pinned package versions from renv.lock.")
-  # Explicit snapshots can omit development-only Suggests packages. Keep
-  # testthat in the install set because the documented test command depends
-  # on it, even when the existing lockfile predates that dependency.
-  unique(c(locked_specs, "testthat"))
+locked_specs <- locked_package_specs(lockfile_path, pak::meta_list())
+if (length(locked_specs) > 0L) {
+  message("Installing pinned package versions from renv.lock with pak...")
+  pak::pkg_install(locked_specs$pak, lib = local_library, upgrade = FALSE, ask = FALSE)
+  if (length(locked_specs$archived) > 0L) {
+    message(
+      "Reinstalling archived Bioconductor versions with renv: ",
+      paste(locked_specs$archived, collapse = ", ")
+    )
+    # Dependencies are already installed at their locked versions, so renv
+    # rebuilds only these packages.
+    renv::install(
+      locked_specs$archived,
+      library = local_library,
+      prompt = FALSE,
+      project = project_root
+    )
+  }
+  # Compare the recorded version strings directly, as the analysis runner does.
+  locked <- renv::lockfile_read(lockfile_path)$Packages
+  installed <- vapply(names(locked), function(package) {
+    tryCatch(
+      as.character(utils::packageDescription(
+        package, lib.loc = local_library, fields = "Version"
+      )),
+      error = function(error) NA_character_
+    )
+  }, character(1))
+  expected <- vapply(locked, function(record) as.character(record$Version), character(1))
+  mismatched <- names(locked)[is.na(installed) | installed != expected]
+  if (length(mismatched) > 0L) {
+    stop(
+      "The project-local library does not match renv.lock after installation: ",
+      paste(mismatched, collapse = ", "),
+      call. = FALSE
+    )
+  }
 } else {
-  analysis_packages
+  message("No renv.lock found; installing current dependency versions with pak...")
+  pak::pkg_install(analysis_packages, lib = local_library, upgrade = FALSE, ask = FALSE)
+  message("Writing renv.lock...")
+  renv::snapshot(project = project_root, type = "explicit", prompt = FALSE)
 }
-
-message("Installing project dependencies with pak...")
-pak::pkg_install(
-  package_specs,
-  lib = local_library,
-  upgrade = FALSE,
-  ask = FALSE
-)
-
-message("Writing renv.lock...")
-renv::snapshot(
-  project = project_root,
-  type = "explicit",
-  prompt = FALSE
-)
 
 message("Project-local renv setup complete.")
 message("Library: ", local_library)
-message("Lockfile: ", file.path(project_root, "renv.lock"))
+message("Lockfile: ", lockfile_path)

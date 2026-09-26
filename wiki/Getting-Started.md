@@ -23,9 +23,7 @@ Cairo must report `TRUE` for the current PDF export function. The analysis depen
 Rscript setup_renv.R
 ```
 
-The setup script activates a project-local `renv` library, establishes `pak` if needed, and installs dependencies with `pak`. It uses the versions recorded in an existing `renv.lock` and writes a lockfile snapshot at the end. Package libraries and caches stay under `renv/`; the script does not install into a global R library.
-
-The current lockfile does not pin `testthat`. Setup includes it separately so the development tests can run.
+The setup script activates a project-local `renv` library, establishes `pak` if needed, and installs dependencies with `pak`. It installs exactly the versions recorded in `renv.lock`, including `testthat` for the development tests, and does not rewrite the lockfile. A Bioconductor package whose locked version has since been superseded is installed by `renv` from that Bioconductor release's source archive. Package libraries and caches stay under `renv/`; the script does not install into a global R library.
 
 Routine analysis checks the project-local packages against the lockfile. It does not install missing packages. Even `--help` currently runs after these environment checks, so complete setup first.
 

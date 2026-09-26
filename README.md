@@ -13,7 +13,7 @@ Rscript setup_renv.R
 Rscript run_fusion_mapper.R --output=results/example
 ```
 
-Setup installs dependencies into the project-local library and writes a lockfile snapshot. It requires network access; compiling dependencies may require a system build toolchain. PDF figure export requires Cairo graphics. See [Getting started](wiki/Getting-Started.md) for prerequisites, setup details, commands, and path behavior.
+Setup installs the versions pinned in `renv.lock` into the project-local library and leaves the lockfile unchanged. It requires network access; compiling dependencies may require a system build toolchain. PDF figure export requires Cairo graphics. See [Getting started](wiki/Getting-Started.md) for prerequisites, setup details, commands, and path behavior.
 
 Open `results/example/fusion_peptide_mapper_report.html`. Keep the output directory together when sharing linked PDFs and data files. Reusing an output directory replaces generated files with the same names.
 
