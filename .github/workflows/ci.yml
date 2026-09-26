@@ -76,7 +76,7 @@ jobs:
       - name: Confirm setup left the lockfile unchanged
         run: git diff --exit-code -- renv.lock renv/settings.json
 
-      - name: Check release metadata
+      - name: Check version metadata (DESCRIPTION, CITATION.cff, NEWS.md)
         run: bash .github/scripts/release_metadata.sh
 
       - name: Run project check (parse, lint, tests, example run, outputs)
@@ -172,67 +172,3 @@ jobs:
           files: ./coverage.xml
           disable_search: true
           fail_ci_if_error: true
-
-  release:
-    name: Release
-    needs: [workflow-security, check, test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: write # Creates the release tag and the GitHub release.
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Read release metadata
-        id: metadata
-        run: bash .github/scripts/release_metadata.sh "$RUNNER_TEMP/release-notes.md"
-
-      - name: Decide whether to release
-        id: decide
-        env:
-          VERSION: ${{ steps.metadata.outputs.version }}
-          IS_RELEASE_VERSION: ${{ steps.metadata.outputs.release }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "$IS_RELEASE_VERSION" != "true" ]]; then
-            echo "Development version $VERSION; no release." | tee -a "$GITHUB_STEP_SUMMARY"
-            echo "publish=false" >> "$GITHUB_OUTPUT"
-          elif git rev-parse --quiet --verify "refs/tags/v$VERSION" > /dev/null; then
-            echo "Tag v$VERSION already exists; no release." | tee -a "$GITHUB_STEP_SUMMARY"
-            echo "publish=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "publish=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build source archive
-        if: steps.decide.outputs.publish == 'true'
-        env:
-          VERSION: ${{ steps.metadata.outputs.version }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          archive="FusionPep-$VERSION.tar.gz"
-          git archive --format=tar.gz --prefix="FusionPep-$VERSION/" -o "$RUNNER_TEMP/$archive" "$GITHUB_SHA"
-          (cd "$RUNNER_TEMP" && sha256sum "$archive" > "$archive.sha256")
-
-      - name: Create GitHub release
-        if: steps.decide.outputs.publish == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.metadata.outputs.version }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh release create "v$VERSION" \
-            --target "$GITHUB_SHA" \
-            --title "FusionPep v$VERSION" \
-            --notes-file "$RUNNER_TEMP/release-notes.md" \
-            "$RUNNER_TEMP/FusionPep-$VERSION.tar.gz" \
-            "$RUNNER_TEMP/FusionPep-$VERSION.tar.gz.sha256"
-          echo "Released v$VERSION." >> "$GITHUB_STEP_SUMMARY"

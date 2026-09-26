@@ -90,7 +90,7 @@ Run the tests with the project library installed:
 Rscript -e 'testthat::test_dir("tests/testthat")'
 ```
 
-`Rscript check_project.R` runs the full local gate: parsing, lint, tests, the bundled example, and output checks. It regenerates `results/`, so keep any earlier run elsewhere. Continuous integration runs the same gate with a coverage floor on Linux, and the tests on macOS and Windows. Changes are recorded in [NEWS.md](NEWS.md); a version bump merged to `main` publishes the release.
+`Rscript check_project.R` runs the full local gate: parsing, lint, tests, the bundled example, and output checks. It regenerates `results/`, so keep any earlier run elsewhere. Continuous integration runs the same gate with a coverage floor on Linux, and the tests on macOS and Windows. Changes are recorded in [NEWS.md](NEWS.md). Pushing a `vX.Y.Z` tag that matches the version publishes a GitHub release with those notes.
 
 Issue reports and contributions are welcome through [GitHub issues](https://github.com/LangeLab/FusionPep/issues).
 

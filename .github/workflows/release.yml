@@ -1,0 +1,74 @@
+name: Release
+
+# Pushing a vX.Y.Z tag publishes a GitHub release. The tag must match the
+# DESCRIPTION version, point at a commit on main that passed CI, and have
+# notes under "# fusionpep X.Y.Z" in NEWS.md and a date-released in CITATION.cff.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Publish GitHub release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write # Creates the GitHub release for the pushed tag.
+      actions: read # Confirms that CI passed for the tagged commit.
+    steps:
+      - name: Check out tagged commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check that the tag is on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "release tag $GITHUB_REF_NAME must point at a commit on main" >&2
+            exit 1
+          }
+
+      - name: Check version metadata and extract release notes
+        run: bash .github/scripts/release_metadata.sh --release "$GITHUB_REF_NAME" --notes "$RUNNER_TEMP/release-notes.md"
+
+      - name: Check that CI passed for the tagged commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          passed=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&status=success" --jq '.total_count')
+          [[ "$passed" -gt 0 ]] || {
+            echo "CI has not passed for $GITHUB_SHA; wait for it to finish, then re-run this workflow" >&2
+            exit 1
+          }
+
+      - name: Build source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="FusionPep-${GITHUB_REF_NAME#v}.tar.gz"
+          git archive --format=tar.gz --prefix="FusionPep-${GITHUB_REF_NAME#v}/" -o "$RUNNER_TEMP/$archive" "$GITHUB_SHA"
+          (cd "$RUNNER_TEMP" && sha256sum "$archive" > "$archive.sha256")
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/FusionPep-${GITHUB_REF_NAME#v}.tar.gz"
+          gh release create "$GITHUB_REF_NAME" \
+            --verify-tag \
+            --title "FusionPep $GITHUB_REF_NAME" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            "$archive" "$archive.sha256"

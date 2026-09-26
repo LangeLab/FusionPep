@@ -72,7 +72,15 @@ The `CI` workflow runs on pushes and pull requests to `main`, and monthly agains
 
 The package library is cached per operating system, R version, and lockfile, so a run after the first mainly measures the checks themselves.
 
-Changes are recorded in `NEWS.md` under `# fusionpep (development version)` while `DESCRIPTION` carries a development version such as `0.1.0.9000`. To release, set `Version` in `DESCRIPTION` and `version` and `date-released` in `CITATION.cff` to the new `X.Y.Z`, rename the NEWS heading to `# fusionpep X.Y.Z`, and merge to `main`. After every CI job passes, the release job tags `vX.Y.Z` and publishes a GitHub release with the NEWS section as notes and a source archive with its SHA-256 checksum. Pull requests run the same metadata check, so an inconsistent version fails before merging.
+Changes are recorded in `NEWS.md` under a `# fusionpep X.Y.Z` heading matching the `Version` in `DESCRIPTION` and `version` in `CITATION.cff`; CI fails when the three disagree. Between releases, the version can be a development version such as `0.1.0.9000` with a `# fusionpep (development version)` heading.
+
+Nothing is released until a version tag is pushed. To release version `X.Y.Z`:
+
+1. Set the version in `DESCRIPTION` and `CITATION.cff`, add `date-released` to `CITATION.cff`, and put the notes under `# fusionpep X.Y.Z` in `NEWS.md`.
+1. Merge to `main` and wait for CI to pass.
+1. Tag that commit and push the tag: `git tag -s vX.Y.Z && git push origin vX.Y.Z`.
+
+The `Release` workflow then checks that the tag is on `main`, matches the version metadata, and has a passing CI run. It publishes a GitHub release with the NEWS section as notes and a source archive with its SHA-256 checksum.
 
 The `Wiki` workflow validates `wiki/` on pull requests and mirrors it to the GitHub Wiki after a merge to `main`.
 
