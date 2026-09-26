@@ -8,11 +8,17 @@ The report embeds its figure images. Keep the output directory and `figures/` su
 
 On desktop, the contents stay in a sidebar and indicate the section being read. On narrow screens, a compact contents menu stays near the top. Wide tables scroll horizontally.
 
+<img src="images/report-phone.png" alt="The example report at phone width, with the collapsed contents menu, header, and summary counts in two columns" width="300">
+
+The [worked example](Worked-Example) shows each report section for the bundled data.
+
 Start with the summary and junction decisions. Expand annotated sequences and detailed alignments when you need residue-level inspection. Under **Inputs and manifests**, separate panels contain normalization notes, the run manifest, and the output manifest. The output manifest explains each data file and gives complete CSV row counts.
 
 Report tables state when they omit rows. The non-match-region table displays at most 100 regions; other limited tables display up to 200 rows. Use the corresponding CSV for the complete data.
 
 ## Junction evidence figure
+
+![Junction evidence figure for the example: a passing peptide with flanks 5 and 12 and a failing peptide with flanks 9 and 2 across the PML::RARA junction](images/figure-junction-evidence.png)
 
 `figures/junction_evidence.png` and its matching PDF show peptide occurrences around each supplied junction. The figure keeps the two flank lengths, threshold, and decision together for each occurrence.
 
@@ -22,11 +28,15 @@ Labels show reference subsequences, which can differ from input strings under I/
 
 ## Peptide coverage figure
 
+![Peptide coverage figure for the example: mapped intervals on the fusion, ParentA, and ParentB, colored by evidence class](images/figure-peptide-coverage.png)
+
 `figures/peptide_coverage.png` and its PDF place occurrences on each reference's own coordinates. Bars include both endpoints, so a single-residue match still has visible width. Stronger junction interpretations are drawn on top where categories overlap.
 
 Coverage includes every valid input sequence, including controls. Consult `peptide_hits.csv` for occurrences hidden beneath an overlapping bar and `coverage_summary.csv` for the union coverage measurements.
 
 ## Alignment overview figure
+
+![Alignment overview figure for the example: ParentA similar across the fusion's first 375 residues and ParentB across residues 401-797](images/figure-alignment-status.png)
 
 `figures/alignment_status.png` and its PDF summarize local fusion-to-parent similarity in 25-residue bins on the fusion coordinates. The categories use the following rules:
 
@@ -42,7 +52,7 @@ Identity excludes gaps. The figure summarizes similarity and does not establish 
 
 ## Export and print
 
-Every figure is written as a vector PDF and a PNG at a requested width of 180 mm. PNG export uses 600 dpi. Figure text, captions, and legends are sized for that width.
+Every figure is written as a vector PDF and a PNG at a requested width of 180 mm. PNG export uses 600 dpi. The images on this page are reduced web copies of the example's figures. Figure text, captions, and legends are sized for that width.
 
 Choose the journal's required final dimensions before submission. Resizing a figure also changes text size. Inspect the PDF at its final printed size and check that labels, categories, and captions remain readable.
 

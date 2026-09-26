@@ -17,16 +17,24 @@
 <p align="center">
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/changelog-CHANGELOG-E05D44?style=flat-square" alt="Changelog"></a>
   <a href="CITATION.cff"><img src="https://img.shields.io/badge/cite-CITATION.cff-0066CC?style=flat-square" alt="Citation"></a>
-  <a href="https://github.com/LangeLab/FusionPep/wiki"><img src="https://img.shields.io/badge/docs-Wiki-0F766E?style=flat-square" alt="Docs"></a>
+  <a href="wiki/Home.md"><img src="https://img.shields.io/badge/docs-Wiki-0F766E?style=flat-square" alt="Docs"></a>
 </p>
 
 FusionPep maps peptide sequences, supplied directly or from a peptide-spectrum match (PSM) export, to a proposed fusion protein and its two parent proteins. It reports every mapped occurrence, parent sharing, residue coverage, and global and local fusion-to-parent alignments. When junction coordinates are supplied, it checks whether each occurrence crosses a junction with the required number of residues on both sides. The results come together in an HTML report, with CSV tables, an R result object, and publication-sized PNG and PDF figures.
 
 FusionPep analyzes sequence matches. It does not search spectra, validate PSMs, or establish peptide detection, FDR-controlled evidence, or biological fusion expression. Absence from the two supplied parents does not show that a peptide is unique across the proteome.
 
+<p align="center">
+  <img src="wiki/images/report-overview.png" alt="The FusionPep example report: summary counts and the junction decision figure for the bundled PML::RARA example" width="720">
+</p>
+
+<p align="center">
+  <sub>The example report for the bundled PML::RARA data. <a href="wiki/Worked-Example.md">Tour every report section</a> or download the full output from the latest <a href="https://github.com/LangeLab/FusionPep/actions/workflows/demo.yml">Demo run</a>.</sub>
+</p>
+
 ## Quick start
 
-FusionPep needs R 4.6.0 or newer with `renv` installed. Setup installs the locked dependency versions into a project-local library:
+FusionPep needs R 4.6.0 or newer. Setup bootstraps `renv` and installs the locked dependency versions into a project-local library:
 
 ```bash
 git clone https://github.com/LangeLab/FusionPep.git
@@ -35,7 +43,7 @@ Rscript setup_renv.R
 Rscript run_fusion_mapper.R --output=results/example
 ```
 
-Open `results/example/fusion_peptide_mapper_report.html`. The bundled PML::RARA example uses literature reference peptides and controls, not PSMs measured by this project. The [worked example](https://github.com/LangeLab/FusionPep/wiki/Worked-Example) explains its decisions, and the [input source notes](input/README.md) record the verified sources and the longer peptide's unconfirmed literature attribution.
+Open `results/example/fusion_peptide_mapper_report.html`. The bundled PML::RARA example uses literature reference peptides and controls, not PSMs measured by this project. The [worked example](wiki/Worked-Example.md) explains its decisions, and the [input source notes](input/README.md) record the verified sources and the longer peptide's unconfirmed literature attribution.
 
 Setup needs network access, and compiling dependencies can need a system build toolchain; on Linux, also install the zlib development headers (for example `zlib1g-dev`). PDF figures need an R build with Cairo graphics.
 
@@ -51,7 +59,7 @@ Rscript run_fusion_mapper.R \
   --output=results/my-fusion
 ```
 
-Pass every input explicitly: an omitted input falls back to the bundled example file. Relative paths resolve from the project root. [Input formats](https://github.com/LangeLab/FusionPep/wiki/Input-Formats) describes each file, and `Rscript run_fusion_mapper.R --help` lists all options.
+Pass every input explicitly: an omitted input falls back to the bundled example file. Relative paths resolve from the project root. [Input formats](wiki/Input-Formats.md) describes each file, and `Rscript run_fusion_mapper.R --help` lists all options.
 
 ## Use from R
 
@@ -68,19 +76,19 @@ result <- run_fusion_analysis(
 result$peptide_summary
 ```
 
-[R interface](https://github.com/LangeLab/FusionPep/wiki/R-Interface) covers the arguments, the returned object, and writing outputs and reports.
+[R interface](wiki/R-Interface.md) covers the arguments, the returned object, and writing outputs and reports.
 
 ## Documentation
 
-The [wiki](https://github.com/LangeLab/FusionPep/wiki) holds the detailed documentation. Its source is the `wiki/` directory of this repository.
+The [documentation](wiki/Home.md) lives in the `wiki/` directory, which is also the source of the GitHub Wiki.
 
-- [Getting started](https://github.com/LangeLab/FusionPep/wiki/Getting-Started): prerequisites, setup, commands, options, and path behavior.
-- [Input formats](https://github.com/LangeLab/FusionPep/wiki/Input-Formats): protein records, peptide tables, and junction definitions.
-- [Interpreting results](https://github.com/LangeLab/FusionPep/wiki/Interpreting-Results): mapping classes, junction decisions, coverage, and scientific limits.
-- [Reports and figures](https://github.com/LangeLab/FusionPep/wiki/Reports-and-Figures): report navigation, figures, printing, and saved outputs.
-- [Worked example](https://github.com/LangeLab/FusionPep/wiki/Worked-Example): the bundled PML::RARA inputs and their results.
-- [Troubleshooting](https://github.com/LangeLab/FusionPep/wiki/Troubleshooting): setup, input, and interpretation checks.
-- [Architecture](https://github.com/LangeLab/FusionPep/wiki/Architecture): analysis flow, source organization, and development checks.
+- [Getting started](wiki/Getting-Started.md): prerequisites, setup, commands, options, and path behavior.
+- [Input formats](wiki/Input-Formats.md): protein records, peptide tables, and junction definitions.
+- [Interpreting results](wiki/Interpreting-Results.md): mapping classes, junction decisions, coverage, and scientific limits.
+- [Reports and figures](wiki/Reports-and-Figures.md): report navigation, figures, printing, and saved outputs.
+- [Worked example](wiki/Worked-Example.md): the bundled PML::RARA inputs and their results.
+- [Troubleshooting](wiki/Troubleshooting.md): setup, input, and interpretation checks.
+- [Architecture](wiki/Architecture.md): analysis flow, source organization, and development checks.
 
 ## Development
 
