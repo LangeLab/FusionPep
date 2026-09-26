@@ -48,7 +48,9 @@ jobs:
   publish:
     name: Publish GitHub Wiki
     needs: validate
+    # Publishing needs the repository's wiki; private repositories on the free plan have none.
     if: >-
+      github.event.repository.has_wiki &&
       github.ref == 'refs/heads/main' &&
       (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish))
     runs-on: ubuntu-24.04

@@ -154,7 +154,8 @@ jobs:
   codecov:
     name: Upload coverage
     needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Codecov's OIDC upload is set up for public repositories; the 90% floor is enforced in the check job.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.repository.visibility == 'public'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
