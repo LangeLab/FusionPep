@@ -73,7 +73,7 @@ Additional fields describe the supplied reference and join:
 | `source`                     | Source record or reference                         |
 | `notes`                      | Explanation of the supplied junction               |
 
-Supply both parent coordinates or neither. When supplied, the boundary residues must agree exactly with those parent residues. This checks local consistency; it does not establish ancestry or breakpoint mechanism.
+Supply both parent coordinates or neither; leave both cells blank or write `NA` to omit them. Elsewhere in the junction CSV, `NA` is literal text: a `junction_id` of `NA` is an identifier and an `inserted_sequence` of `NA` is asparagine followed by alanine. Identifiers are kept exactly as written, including leading zeros. When supplied, the boundary residues must agree exactly with those parent residues. This checks local consistency; it does not establish ancestry or breakpoint mechanism.
 
 For a direct join, the right position is the left position plus one and `inserted_sequence` is empty. If there are intervening residues, provide their exact sequence. Its length must equal the right position minus the left position minus one. All coordinates must fit within the relevant sequences.
 

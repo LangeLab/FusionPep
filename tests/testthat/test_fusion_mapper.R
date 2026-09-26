@@ -378,6 +378,45 @@ testthat::test_that("junction metadata cannot identify a parent as the fusion", 
   )
 })
 
+testthat::test_that("junction text values keep literal NA and leading zeros", {
+  junction_file <- tempfile(fileext = ".csv")
+  writeLines(c(
+    "fusion_id,junction_id,upstream_parent,downstream_parent,fusion_left_position,fusion_right_position,upstream_parent_position,downstream_parent_position,inserted_sequence,min_flank_aa",
+    "Fusion,NA,ParentA,ParentB,3,6,NA,NA,NA,2",
+    "Fusion,01,ParentA,ParentB,2,3,,,,1"
+  ), junction_file)
+  sequence_text <- c(
+    Fusion = "AAANABBB",
+    ParentA = "AAAX",
+    ParentB = "YBBB"
+  )
+  junctions <- read_fusion_junctions(junction_file, sequence_text)$table
+  testthat::expect_identical(junctions$junction_id, c("NA", "01"))
+  testthat::expect_identical(junctions$inserted_sequence, c("NA", ""))
+  testthat::expect_identical(junctions$upstream_parent_position, c(NA_integer_, NA_integer_))
+  testthat::expect_identical(junctions$fusion_left_position, c(3L, 2L))
+})
+
+testthat::test_that("junction coordinates must be finite integers in range", {
+  sequence_text <- c(
+    Fusion = "AAAXBBB",
+    ParentA = "AAAX",
+    ParentB = "YBBB"
+  )
+  for (bad in c("Inf", "4.5", "3e10", "NA", "")) {
+    junction_file <- tempfile(fileext = ".csv")
+    writeLines(c(
+      "fusion_id,junction_id,upstream_parent,downstream_parent,fusion_left_position,fusion_right_position,min_flank_aa",
+      paste0("Fusion,j1,ParentA,ParentB,", bad, ",5,2")
+    ), junction_file)
+    testthat::expect_error(
+      read_fusion_junctions(junction_file, sequence_text),
+      "must contain integer values",
+      info = bad
+    )
+  }
+})
+
 testthat::test_that("FASTA validation rejects missing required records", {
   fasta <- tempfile(fileext = ".fasta")
   writeLines(c(

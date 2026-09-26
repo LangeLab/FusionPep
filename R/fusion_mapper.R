@@ -741,12 +741,15 @@ read_fusion_junctions <- function(path,
     stopf("sequence_text must be a named character vector before reading junction metadata.")
   }
 
+  # Read every column as text: "NA" is a valid identifier or inserted
+  # sequence (Asn-Ala), and type conversion would rewrite IDs such as "01".
+  # Only blank cells are missing; the optional coordinates also accept "NA".
   input <- tryCatch(
     utils::read.csv(
       path,
       check.names = FALSE,
-      stringsAsFactors = FALSE,
-      na.strings = c("", "NA"),
+      colClasses = "character",
+      na.strings = "",
       fileEncoding = "UTF-8-BOM"
     ),
     error = function(error) {
@@ -790,13 +793,18 @@ read_fusion_junctions <- function(path,
   }
 
   parse_integer_column <- function(column, allow_na = FALSE) {
-    raw <- as.character(input[[column]])
+    raw <- trimws(as.character(input[[column]]))
+    if (allow_na) {
+      raw[!is.na(raw) & raw == "NA"] <- NA_character_
+    }
     numeric_values <- suppressWarnings(as.numeric(raw))
+    not_integer <- !is.finite(numeric_values) |
+      abs(numeric_values) > .Machine$integer.max |
+      numeric_values != floor(numeric_values)
     invalid <- if (allow_na) {
-      !is.na(raw) & nzchar(trimws(raw)) &
-        (is.na(numeric_values) | numeric_values != floor(numeric_values))
+      !is.na(raw) & nzchar(raw) & not_integer
     } else {
-      is.na(numeric_values) | numeric_values != floor(numeric_values)
+      not_integer
     }
     if (any(invalid)) {
       stopf("Fusion-junction column '%s' must contain integer values.", column)
