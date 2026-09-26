@@ -36,6 +36,5 @@ Suggests:
     BiocVersion,
     covr,
     lintr,
-    pak,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

@@ -11,7 +11,7 @@ FusionPep has not had a tagged release. This section describes the current devel
 
 ## Reliability
 
-- Setup installs exactly the versions pinned in `renv.lock` and no longer rewrites the lockfile. Bioconductor versions superseded within their release are installed from the release archive.
+- Setup installs exactly the versions pinned in `renv.lock` and no longer rewrites the lockfile. Bioconductor versions superseded within their release are installed from the release archive. `pak` is bootstrapped from r-lib's prebuilt binaries, so setup needs no system libraries before its first install.
 - `testthat`, `covr`, and `lintr` are pinned in `renv.lock` with the analysis dependencies.
 - The runner and project check work from any working directory without a global `renv` installation. The runner treats Windows drive and UNC paths as absolute.
 - Saved outputs identify inputs by file name and MD5 hash instead of local directory paths. The run manifest keys are `fasta_file`, `peptide_csv_file`, and `junction_csv_file`.

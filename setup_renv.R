@@ -108,27 +108,24 @@ renv::settings$snapshot.type("explicit", project = project_root)
 local_library <- renv::paths$library(project = project_root)
 dir.create(local_library, recursive = TRUE, showWarnings = FALSE)
 
-# pak cannot install itself before it exists in the local library. Prefer an
-# already available pak bootstrap tool, but install the package into the
-# project library rather than using that global library as a target. If pak is
-# genuinely unavailable, renv is the unavoidable bootstrap fallback.
+# pak cannot install itself before it exists in the local library. Bootstrap
+# it from r-lib's prebuilt pak repository: those builds bundle their own
+# dependencies, so no compiler or system libraries (such as libcurl headers)
+# are needed. pak is the installer, not a project dependency, so renv.lock does
+# not pin it.
 if (!requireNamespace("pak", quietly = TRUE, lib.loc = local_library)) {
   message("Bootstrapping pak into the project-local renv library...")
-  if (requireNamespace("pak", quietly = TRUE)) {
-    pak::pkg_install(
-      "pak",
-      lib = local_library,
-      upgrade = FALSE,
-      ask = FALSE
-    )
-  } else {
-    renv::install(
-      packages = "pak",
-      library = local_library,
-      prompt = FALSE,
-      project = project_root
-    )
-  }
+  pak_repository <- sprintf(
+    "https://r-lib.github.io/p/pak/stable/%s/%s/%s",
+    .Platform$pkgType, R.Version()$os, R.Version()$arch
+  )
+  renv::install(
+    packages = "pak",
+    repos = c(pak = pak_repository),
+    library = local_library,
+    prompt = FALSE,
+    project = project_root
+  )
 }
 
 if (!requireNamespace("pak", quietly = TRUE, lib.loc = local_library)) {
