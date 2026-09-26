@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use FusionPep, please cite it as below."
 type: software
 title: "FusionPep: Peptide Mapping and Junction Review"
-version: 0.0.0.9000
+version: 0.1.0
 license: MIT
 repository-code: "https://github.com/LangeLab/FusionPep"
 url: "https://github.com/LangeLab/FusionPep/wiki"

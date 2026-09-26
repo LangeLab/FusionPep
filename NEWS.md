@@ -1,6 +1,6 @@
-# fusionpep (development version)
+# fusionpep 0.1.0
 
-FusionPep has not had a tagged release. This section describes the current development state and becomes the notes for the first release.
+First public version.
 
 ## Analysis
 
