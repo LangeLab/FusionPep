@@ -149,6 +149,11 @@ jobs:
           key: renv-${{ runner.os }}-${{ runner.arch }}-r${{ steps.r.outputs.version }}-${{ hashFiles('renv.lock') }}
           restore-keys: renv-${{ runner.os }}-${{ runner.arch }}-r${{ steps.r.outputs.version }}-
 
+      - name: Install XQuartz for Cairo PDF export
+        # CRAN's R for macOS loads its Cairo graphics library from XQuartz.
+        if: runner.os == 'macOS'
+        run: brew install --cask xquartz
+
       - name: Install locked dependencies
         run: Rscript setup_renv.R
 
