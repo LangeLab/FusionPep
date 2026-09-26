@@ -83,7 +83,20 @@ Nothing is released until a version tag is pushed. To release version `X.Y.Z`:
 
 The `Release` workflow then checks that the tag is on `main`, matches the version and dates, and has a passing CI run. It publishes a GitHub release whose notes are that version's changelog section, with a source archive and its SHA-256 checksum.
 
-The `Wiki` workflow validates `wiki/` on pull requests and mirrors it to the GitHub Wiki after a merge to `main`.
+The `Wiki` workflow validates `wiki/` on pull requests and mirrors it to the GitHub Wiki after a merge to `main`, once the repository's wiki is enabled.
+
+## Demo output and screenshots
+
+The `Demo` workflow runs after changes to the analysis, report, inputs, or lockfile reach `main`. It runs the bundled example with `.github/scripts/build_demo.sh`, which also takes the report screenshots with headless Chromium and writes web-sized copies of the figures. The complete output is uploaded as the `fusionpep-demo` artifact; once GitHub Pages is enabled with GitHub Actions as its source, the same site is published there.
+
+The README and wiki show the images committed in `wiki/images/`. After a change to the report or figures, refresh them from the project root and commit the result:
+
+```bash
+uv run --with playwright==1.63.0 playwright install chromium
+bash .github/scripts/build_demo.sh "$(mktemp -d)/site"
+```
+
+The images can also be taken from the `images/` folder of the latest `fusionpep-demo` artifact. Screenshots and PNG files differ slightly between machines because fonts render differently; the measurements do not.
 
 ## Dependency changes
 
