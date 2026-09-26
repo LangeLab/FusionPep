@@ -145,7 +145,7 @@ if (!requireNamespace("pak", quietly = TRUE, lib.loc = local_library)) {
 # archive.  pak installs those by archive URL, so their dependents build
 # against the locked version, and renv then reinstalls them from the same
 # archive to record them as Bioconductor installs matching renv.lock.
-locked_package_specs <- function(lockfile, available) {
+locked_package_specs <- function(lockfile, available, library) {
   if (!file.exists(lockfile)) {
     return(NULL)
   }
@@ -196,6 +196,22 @@ locked_package_specs <- function(lockfile, available) {
   }, character(1))
   specs <- unname(specs)
   archived <- startsWith(specs, "archived::")
+  # An archived package already installed by renv at its locked version needs
+  # no work; skipping it keeps repeat setups from rebuilding it twice.
+  installed_by_renv <- vapply(specs, function(spec) {
+    if (!startsWith(spec, "archived::")) {
+      return(FALSE)
+    }
+    package <- sub("^archived::([^@]+)@.*$", "\\1", spec)
+    fields <- suppressWarnings(utils::packageDescription(
+      package, lib.loc = library, fields = c("Version", "RemoteType")
+    ))
+    is.list(fields) &&
+      identical(fields$Version, sub("^archived::[^@]+@", "", spec)) &&
+      is.na(fields$RemoteType)
+  }, logical(1))
+  specs <- specs[!installed_by_renv]
+  archived <- archived[!installed_by_renv]
   archived_packages <- sub("^archived::([^@]+)@.*$", "\\1", specs[archived])
   archived_versions <- sub("^archived::[^@]+@", "", specs[archived])
   if (any(archived) && is.na(bioc_version)) {
@@ -223,7 +239,7 @@ analysis_packages <- c(
   "testthat"
 )
 lockfile_path <- file.path(project_root, "renv.lock")
-locked_specs <- locked_package_specs(lockfile_path, pak::meta_list())
+locked_specs <- locked_package_specs(lockfile_path, pak::meta_list(), local_library)
 if (length(locked_specs) > 0L) {
   message("Installing pinned package versions from renv.lock with pak...")
   pak::pkg_install(locked_specs$pak, lib = local_library, upgrade = FALSE, ask = FALSE)
