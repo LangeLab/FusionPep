@@ -50,7 +50,9 @@ jobs:
       - name: Read R version from renv.lock
         id: r
         shell: bash
-        run: echo "version=$(python3 -c 'import json; print(json.load(open("renv.lock"))["R"]["Version"])')" >> "$GITHUB_OUTPUT"
+        run: |
+          version=$(python3 -c 'import json; print(json.load(open("renv.lock", encoding="utf-8"))["R"]["Version"])')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Set up R ${{ steps.r.outputs.version }}
         uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2.14.0
@@ -130,7 +132,9 @@ jobs:
       - name: Read R version from renv.lock
         id: r
         shell: bash
-        run: echo "version=$(python3 -c 'import json; print(json.load(open("renv.lock"))["R"]["Version"])')" >> "$GITHUB_OUTPUT"
+        run: |
+          version=$(python3 -c 'import json; print(json.load(open("renv.lock", encoding="utf-8"))["R"]["Version"])')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Set up R ${{ steps.r.outputs.version }}
         uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2.14.0
