@@ -14,9 +14,11 @@ if (is.na(minimum) || minimum < 0 || minimum > 100) {
 }
 
 project_root <- normalizePath(".", mustWork = TRUE)
+# Relative paths make the report name files as the repository does
+# ("R/fusion_mapper.R"), which is how Codecov matches them to the source.
 source_files <- c(
-  list.files(file.path(project_root, "R"), pattern = "[.]R$", full.names = TRUE),
-  file.path(project_root, "report", "fusion_report.R")
+  list.files("R", pattern = "[.]R$", full.names = TRUE),
+  file.path("report", "fusion_report.R")
 )
 # The helper file is left out: it would re-source the uninstrumented code.
 test_files <- list.files(
@@ -38,7 +40,7 @@ summary_path <- Sys.getenv("GITHUB_STEP_SUMMARY")
 if (nzchar(summary_path)) {
   file_rows <- sprintf(
     "| `%s` | %.2f |",
-    sub(paste0("^", project_root, "/"), "", names(by_file)),
+    names(by_file),
     by_file
   )
   cat(
