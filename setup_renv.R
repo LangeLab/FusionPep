@@ -262,7 +262,7 @@ if (length(locked_specs) > 0L) {
   installed <- vapply(names(locked), function(package) {
     tryCatch(
       as.character(utils::packageDescription(
-        package, lib.loc = local_library, fields = "Version"
+        package, lib.loc = c(local_library, .Library), fields = "Version"
       )),
       error = function(error) NA_character_
     )

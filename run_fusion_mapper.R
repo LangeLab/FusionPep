@@ -181,10 +181,12 @@ if (file.exists(lockfile_path)) {
     } else {
       as.character(record$Version)
     }
+    # Recommended packages such as codetools ship in R's own library; setup
+    # installs a project copy only when that version differs from the lock.
     actual <- tryCatch(
       as.character(utils::packageDescription(
         package,
-        lib.loc = local_library,
+        lib.loc = c(local_library, .Library),
         fields = "Version"
       )),
       error = function(error) NA_character_
