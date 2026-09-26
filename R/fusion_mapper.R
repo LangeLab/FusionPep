@@ -2236,6 +2236,9 @@ package_version_text <- function(package) {
   }
 }
 
+# The manifest identifies inputs by file name and MD5 hash. It omits the
+# directories so shared outputs do not expose local paths and runs of the same
+# inputs on different machines produce the same manifest.
 build_run_manifest <- function(config,
                                sequence_input,
                                peptide_input,
@@ -2245,12 +2248,12 @@ build_run_manifest <- function(config,
     "generated_at_utc",
     "r_version",
     "package_versions",
-    "fasta_path",
+    "fasta_file",
     "fasta_md5",
-    "peptide_csv_path",
+    "peptide_csv_file",
     "peptide_csv_md5",
     "peptide_column",
-    "junction_csv_path",
+    "junction_csv_file",
     "junction_csv_md5",
     "junction_count",
     "il_equivalent_matching",
@@ -2273,12 +2276,12 @@ build_run_manifest <- function(config,
       ),
       collapse = ", "
     ),
-    sequence_input$source_path,
+    basename(sequence_input$source_path),
     sequence_input$source_md5,
-    peptide_input$source_path,
+    basename(peptide_input$source_path),
     peptide_input$source_md5,
     peptide_input$peptide_column,
-    if (is.null(junction_input)) NA_character_ else junction_input$source_path,
+    if (is.null(junction_input)) NA_character_ else basename(junction_input$source_path),
     if (is.null(junction_input)) NA_character_ else junction_input$source_md5,
     if (is.null(junction_input)) 0L else nrow(junction_input$table),
     isTRUE(config$il_equivalent),

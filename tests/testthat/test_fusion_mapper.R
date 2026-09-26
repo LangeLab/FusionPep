@@ -603,6 +603,50 @@ testthat::test_that("missing evidence roles are rendered as unspecified", {
   testthat::expect_identical(unname(friendly_input_role(roles)), "Unspecified")
 })
 
+testthat::test_that("saved outputs record input file names, not directories", {
+  input_dir <- tempfile("fusionpep-private-inputs-")
+  dir.create(input_dir)
+  file.copy(
+    file.path(project_root, "input", c("sequences.fasta", "peptides.csv", "fusion_junctions.csv")),
+    input_dir
+  )
+  result <- run_fusion_analysis(
+    sequence_file = file.path(input_dir, "sequences.fasta"),
+    peptide_file = file.path(input_dir, "peptides.csv"),
+    junction_file = file.path(input_dir, "fusion_junctions.csv")
+  )
+  output_dir <- tempfile("fusion-output-")
+  artifacts <- write_fusion_outputs(result, output_dir)
+  artifacts$report <- write_fusion_report(result, output_dir, artifacts)
+
+  manifest <- setNames(result$manifest$value, result$manifest$key)
+  testthat::expect_identical(
+    unname(manifest[c("fasta_file", "peptide_csv_file", "junction_csv_file")]),
+    c("sequences.fasta", "peptides.csv", "fusion_junctions.csv")
+  )
+  input_dir_name <- basename(input_dir)
+  text_files <- c(
+    unlist(artifacts[grepl("[.](csv|txt|html)$", unlist(artifacts))])
+  )
+  for (path in text_files) {
+    testthat::expect_false(
+      any(grepl(input_dir_name, readLines(path, warn = FALSE), fixed = TRUE)),
+      info = path
+    )
+  }
+  saved <- readRDS(artifacts$result_rds)
+  saved_strings <- unlist(rapply(
+    unclass(saved), function(x) x, classes = "character", how = "unlist"
+  ))
+  testthat::expect_false(any(grepl(input_dir_name, saved_strings, fixed = TRUE)))
+  testthat::expect_identical(saved$sequence_input$source_path, "sequences.fasta")
+  testthat::expect_identical(saved$config$junction_file, "fusion_junctions.csv")
+  testthat::expect_identical(
+    result$sequence_input$source_path,
+    normalizePath(file.path(input_dir, "sequences.fasta"))
+  )
+})
+
 testthat::test_that("outputs cannot overwrite input files", {
   input_dir <- tempfile("fusion-input-")
   dir.create(input_dir)

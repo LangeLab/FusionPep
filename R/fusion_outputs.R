@@ -65,6 +65,15 @@ assert_output_paths_do_not_overwrite_inputs <- function(result, output_paths) {
   invisible(TRUE)
 }
 
+# Saved results identify inputs by file name and hash, like the manifest. The
+# in-memory result keeps full paths for the caller and the collision check.
+without_input_directories <- function(result) {
+  result$sequence_input$source_path <- basename(result$sequence_input$source_path)
+  result$peptide_input$source_path <- basename(result$peptide_input$source_path)
+  result$config$junction_file <- basename(result$config$junction_file)
+  result
+}
+
 write_csv_output <- function(data, path) {
   utils::write.csv(
     data,
@@ -133,7 +142,7 @@ write_fusion_outputs <- function(result, output_dir) {
   write_csv_output(result$alignment_summaries, csv_paths[["alignment_summaries"]])
   write_csv_output(sequence_metadata, csv_paths[["sequence_metadata"]])
   write_csv_output(result$manifest, csv_paths[["run_manifest"]])
-  saveRDS(result, artifact_paths[["result_rds"]])
+  saveRDS(without_input_directories(result), artifact_paths[["result_rds"]])
 
   warnings_path <- artifact_paths[["warnings"]]
   if (length(result$warnings) == 0L) {

@@ -324,7 +324,7 @@ output_manifest_html <- function(result, artifact_paths) {
     alignment_columns = "Every global and local alignment column: paired residues, coordinates, gaps, exact matches and I/L-equivalent matches.",
     alignment_regions = "Contiguous runs of alignment matches, mismatches and gaps, including all regions omitted from the report preview.",
     alignment_summaries = "Per-parent global and local alignment scores, identities, aligned fractions and the substitution matrix used.",
-    run_manifest = "Generation time, R and package versions, input paths and MD5 hashes, matching mode and analysis settings.",
+    run_manifest = "Generation time, R and package versions, input file names and MD5 hashes, matching mode and analysis settings.",
     warnings = "Normalization warnings for excluded or unsupported input values, or an explicit statement that there were none.",
     result_rds = "Complete analysis object, including inputs, settings and all result tables. Open with readRDS() in R."
   )

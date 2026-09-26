@@ -63,7 +63,7 @@ paths$report
 
 This example uses the R session's temporary directory. Choose a persistent output directory to retain the files after the session ends. Reusing a directory replaces generated files with matching names.
 
-`write_fusion_outputs()` writes CSV, RDS, warning, and figure files and returns their paths. `write_fusion_report()` consumes the result and those paths, writes HTML, and returns the report path. Figure PDFs require Cairo graphics. [Reports and figures](Reports-and-Figures) describes the saved files.
+`write_fusion_outputs()` writes CSV, RDS, warning, and figure files and returns their paths. The returned result keeps full input paths; the saved RDS and manifest record only the input file names and hashes. `write_fusion_report()` consumes the result and those paths, writes HTML, and returns the report path. Figure PDFs require Cairo graphics. [Reports and figures](Reports-and-Figures) describes the saved files.
 
 ## Reuse mapping or alignment without figure export
 

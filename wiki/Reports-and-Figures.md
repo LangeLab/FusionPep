@@ -69,7 +69,7 @@ The tables retain complete data when a figure or report table displays only a su
 | `alignment_regions.csv` | Consecutive alignment runs by match, mismatch, or gap status |
 | `alignment_summaries.csv` | Alignment scores, identities, and aligned fractions |
 | `sequence_metadata.csv` | Selected reference roles, source headers, and lengths |
-| `run_manifest.csv` | Generation time, input paths and hashes, versions, and settings |
+| `run_manifest.csv` | Generation time, input file names and hashes, versions, and settings |
 | `warnings.txt` | Normalization warnings, or a line stating there were none |
 | `fusion_peptide_mapper_result.rds` | Structured R result, readable with `readRDS()` |
 
@@ -77,6 +77,6 @@ CSV row counts exclude the header. `input_row_ids` refer to rows in the original
 
 </details>
 
-The run manifest records the input-file MD5 hashes, selected sequence identifiers, peptide column, I/L setting, alignment settings, R version, and reported package versions. Retain the original input files and `renv.lock` with a run when you need to reproduce it.
+The run manifest records the input file names and MD5 hashes, selected sequence identifiers, peptide column, I/L setting, alignment settings, R version, and reported package versions. Saved files identify inputs by file name and hash, not by directory, so a shared output directory does not reveal where the inputs were stored. Retain the original input files and `renv.lock` with a run when you need to reproduce it.
 
 Use the [R interface](R-Interface) to inspect the result object or produce a report from an analysis in your own script.
