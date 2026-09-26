@@ -7,7 +7,7 @@ FusionPep currently runs as an R project through `run_fusion_mapper.R`. Start fr
 - R 4.6.0 or newer. The current lockfile records R 4.6.1 and Bioconductor 3.23.
 - `renv` available to bootstrap the project environment.
 - An R installation with Cairo graphics for vector PDF export.
-- Network access for initial dependency setup. A system build toolchain may be needed when dependencies compile from source.
+- Network access for initial dependency setup. A system build toolchain may be needed when dependencies compile from source. On Linux, Bioconductor packages compile from source and need the zlib development headers (`zlib1g-dev` on Debian and Ubuntu, `zlib-devel` on Fedora); `pak` installs the other system libraries it can identify when it has administrator rights.
 
 You can check the R version and Cairo graphics with:
 

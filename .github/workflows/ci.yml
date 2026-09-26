@@ -66,6 +66,10 @@ jobs:
           # setup_renv.R replaces any restored package whose version differs from renv.lock.
           restore-keys: renv-${{ runner.os }}-${{ runner.arch }}-r${{ steps.r.outputs.version }}-
 
+      - name: Install zlib headers for Bioconductor source builds
+        # pak installs the system libraries that packages declare; XVector needs zlib without declaring it.
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends zlib1g-dev
+
       - name: Install locked dependencies
         run: Rscript setup_renv.R
 

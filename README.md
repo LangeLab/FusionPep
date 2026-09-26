@@ -37,7 +37,7 @@ Rscript run_fusion_mapper.R --output=results/example
 
 Open `results/example/fusion_peptide_mapper_report.html`. The bundled PML::RARA example uses literature reference peptides and controls, not PSMs measured by this project. The [worked example](https://github.com/LangeLab/FusionPep/wiki/Worked-Example) explains its decisions, and the [input source notes](input/README.md) record the verified sources and the longer peptide's unconfirmed literature attribution.
 
-Setup needs network access, and compiling dependencies can need a system build toolchain. PDF figures need an R build with Cairo graphics.
+Setup needs network access, and compiling dependencies can need a system build toolchain; on Linux, also install the zlib development headers (for example `zlib1g-dev`). PDF figures need an R build with Cairo graphics.
 
 ## Analyze your own data
 
